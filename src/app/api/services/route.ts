@@ -15,8 +15,13 @@ async function getServices() {
     if (isProduction) {
         // Use Netlify Blobs in production
         try {
-            const store = getStore(STORE_NAME);
+            const store = getStore({
+                name: STORE_NAME,
+                siteID: process.env.SITE_ID,
+                token: process.env.NETLIFY_TOKEN,
+            });
             const data = await store.get(BLOB_KEY, { type: 'json' });
+            console.log('Read from Netlify Blobs:', data);
             return data || [];
         } catch (error) {
             console.error('Error reading from Netlify Blobs:', error);
@@ -36,8 +41,13 @@ async function saveServices(services: any[]) {
     if (isProduction) {
         // Save to Netlify Blobs in production
         try {
-            const store = getStore(STORE_NAME);
+            const store = getStore({
+                name: STORE_NAME,
+                siteID: process.env.SITE_ID,
+                token: process.env.NETLIFY_TOKEN,
+            });
             await store.setJSON(BLOB_KEY, services);
+            console.log('Saved to Netlify Blobs:', services);
         } catch (error) {
             console.error('Error writing to Netlify Blobs:', error);
             throw error;
@@ -58,8 +68,11 @@ export async function GET() {
         const services = await getServices();
         return NextResponse.json(services);
     } catch (error) {
-        console.error('Error fetching services:', error);
-        return NextResponse.json({ error: 'Failed to fetch services' }, { status: 500 });
+        console.error('GET Error:', error);
+        return NextResponse.json({
+            error: 'Failed to fetch services',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        }, { status: 500 });
     }
 }
 
@@ -71,16 +84,17 @@ export async function POST(request: Request) {
         const newService = await request.json();
         const services = await getServices();
 
-        // Simple ID generation
         newService.id = Date.now().toString();
-
         services.push(newService);
         await saveServices(services);
 
         return NextResponse.json(newService);
     } catch (error) {
-        console.error('Error adding service:', error);
-        return NextResponse.json({ error: 'Failed to add service' }, { status: 500 });
+        console.error('POST Error:', error);
+        return NextResponse.json({
+            error: 'Failed to add service',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        }, { status: 500 });
     }
 }
 
@@ -101,8 +115,11 @@ export async function PUT(request: Request) {
 
         return NextResponse.json({ error: 'Service not found' }, { status: 404 });
     } catch (error) {
-        console.error('Error updating service:', error);
-        return NextResponse.json({ error: 'Failed to update service' }, { status: 500 });
+        console.error('PUT Error:', error);
+        return NextResponse.json({
+            error: 'Failed to update service',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        }, { status: 500 });
     }
 }
 
@@ -117,12 +134,17 @@ export async function DELETE(request: Request) {
         if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
         let services = await getServices();
+        console.log('Before delete:', services);
         services = services.filter((s: any) => s.id !== id);
+        console.log('After delete:', services);
         await saveServices(services);
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('Error deleting service:', error);
-        return NextResponse.json({ error: 'Failed to delete service' }, { status: 500 });
+        console.error('DELETE Error:', error);
+        return NextResponse.json({
+            error: 'Failed to delete service',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        }, { status: 500 });
     }
 }
