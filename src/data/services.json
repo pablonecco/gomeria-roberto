@@ -1,0 +1,44 @@
+[
+  {
+    "id": "1",
+    "name": "Reparación de Llantas",
+    "description": "Enderezado, soldadura y pintura de llantas de aleación y chapa.",
+    "price": "Consultar"
+  },
+  {
+    "id": "2",
+    "name": "Balanceo",
+    "description": "Balanceo computarizado para autos y camionetas.",
+    "price": "$8.000"
+  },
+  {
+    "id": "3",
+    "name": "Venta de Cubiertas Nuevas",
+    "description": "Amplio stock de marcas y medidas. Consultar disponibilidad.",
+    "price": "Consultar"
+  },
+  {
+    "id": "4",
+    "name": "Parchado y Vulcanizado",
+    "description": "Reparación de pinchaduras y cortes en cubiertas.",
+    "price": "$5.000"
+  },
+  {
+    "id": "5",
+    "name": "Rotación",
+    "description": "Rotación de neumáticos para asegurar un desgaste parejo.",
+    "price": "$6.000"
+  },
+  {
+    "name": "Nuevo servicio",
+    "description": "servicio test",
+    "price": "Consultar",
+    "id": "1764354382513"
+  },
+  {
+    "name": "asd",
+    "description": "asd",
+    "price": "otro texto",
+    "id": "1764354398475"
+  }
+]
