@@ -52,7 +52,7 @@ export default function Login() {
                         </div>
 
                         <h2 className="text-3xl font-black text-center text-white mb-2 tracking-tight">ACCESO ADMIN</h2>
-                        <p className="text-neutral-500 text-center mb-8 text-sm uppercase tracking-widest">Gomería Roberto</p>
+                        <p className="text-neutral-500 text-center mb-8 text-sm uppercase tracking-widest">Neumáticos Roberto</p>
 
                         {error && (
                             <div className="bg-red-900/20 border border-red-900/50 text-red-200 p-4 rounded-lg mb-6 text-sm text-center flex items-center justify-center gap-2 animate-shake">

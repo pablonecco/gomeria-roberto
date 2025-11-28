@@ -15,7 +15,7 @@ export default function Map() {
                     scrolling="no"
                     marginHeight={0}
                     marginWidth={0}
-                    title="Ubicación Gomería Roberto"
+                    title="Ubicación Neumáticos Roberto"
                     className="filter grayscale contrast-125 invert-[.9] hue-rotate-180 transition-all duration-700 group-hover:grayscale-0 group-hover:invert-0 group-hover:hue-rotate-0"
                 ></iframe>
             </div>

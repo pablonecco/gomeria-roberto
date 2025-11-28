@@ -45,7 +45,7 @@ export default function Home() {
           </h1>
 
           <p className="text-xl md:text-2xl text-neutral-300 mb-10 max-w-2xl mx-auto font-light animate-fade-in-up delay-200">
-            Servicio premium de gomería en Temperley. Atención personalizada para tu vehículo.
+            Servicio premium de neumáticos en Temperley. Atención personalizada para tu vehículo.
           </p>
 
           <div className="flex flex-col md:flex-row gap-6 justify-center animate-fade-in-up delay-300">

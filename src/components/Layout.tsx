@@ -13,7 +13,7 @@ export default function Layout({ children }: LayoutProps) {
       <header className="fixed w-full top-0 z-50 glass border-b border-white/5">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/" className="text-2xl font-black tracking-tighter italic group">
-            <span className="text-white group-hover:text-red-500 transition-colors">GOMERÍA</span>
+            <span className="text-white group-hover:text-red-500 transition-colors">NEUMÁTICOS</span>
             <span className="text-red-600 group-hover:text-white transition-colors ml-1">ROBERTO</span>
           </Link>
 
@@ -64,7 +64,7 @@ export default function Layout({ children }: LayoutProps) {
         <div className="container mx-auto px-4 grid md:grid-cols-3 gap-12 relative z-10">
           <div>
             <h3 className="text-2xl font-black italic mb-6">
-              <span className="text-white">GOMERÍA</span> <span className="text-red-600">ROBERTO</span>
+              <span className="text-white">NEUMÁTICOS</span> <span className="text-red-600">ROBERTO</span>
             </h3>
             <p className="text-neutral-400 text-sm leading-relaxed mb-6">
               Más de 20 años brindando seguridad y confianza en Temperley. Especialistas en reparación de llantas, balanceo y venta de neumáticos de todas las marcas.
@@ -110,7 +110,7 @@ export default function Layout({ children }: LayoutProps) {
         </div>
 
         <div className="container mx-auto px-4 mt-12 pt-8 border-t border-neutral-900 text-center text-xs text-neutral-600 uppercase tracking-widest">
-          &copy; {new Date().getFullYear()} Gomería Roberto. Design by Antigravity.
+          &copy; {new Date().getFullYear()} Neumáticos Roberto. Design by Antigravity.
         </div>
       </footer>
     </div>

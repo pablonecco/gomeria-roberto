@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Gomería Roberto",
-  description: "Servicio premium de gomería en Temperley. Neumáticos, llantas y balanceo.",
+  title: "Neumáticos Roberto",
+  description: "Servicio premium de neumáticos en Temperley. Llantas y balanceo.",
 };
 
 export default function RootLayout({
