@@ -8,32 +8,39 @@ const dataFilePath = path.join(process.cwd(), 'src/data/services.json');
 const STORE_NAME = 'gomeria-services';
 const BLOB_KEY = 'services';
 
-// Helper to check if we're in production (Netlify)
-const isProduction = process.env.NETLIFY === 'true';
+// Detect production: Netlify sets CONTEXT to "production" or "deploy-preview"
+// Also check if we can't write to filesystem (serverless)
+const isProduction = process.env.CONTEXT === 'production' ||
+    process.env.CONTEXT === 'deploy-preview' ||
+    process.env.NETLIFY === 'true';
 
 async function getServices() {
     if (isProduction) {
         // Use Netlify Blobs in production
         try {
-            const store = getStore({
-                name: STORE_NAME,
-                siteID: process.env.SITE_ID,
-                token: process.env.NETLIFY_TOKEN,
-            });
+            const store = getStore(STORE_NAME);
             const data = await store.get(BLOB_KEY, { type: 'json' });
-            console.log('Read from Netlify Blobs:', data);
+            console.log('[BLOBS] Read services:', data ? `${data.length} items` : 'empty');
             return data || [];
         } catch (error) {
-            console.error('Error reading from Netlify Blobs:', error);
+            console.error('[BLOBS] Error reading:', error);
             return [];
         }
     } else {
         // Use JSON file in development
-        if (!fs.existsSync(dataFilePath)) {
+        try {
+            if (!fs.existsSync(dataFilePath)) {
+                console.log('[LOCAL] No services file, returning empty array');
+                return [];
+            }
+            const fileData = fs.readFileSync(dataFilePath, 'utf8');
+            const data = JSON.parse(fileData);
+            console.log('[LOCAL] Read services:', data.length, 'items');
+            return data;
+        } catch (error) {
+            console.error('[LOCAL] Error reading:', error);
             return [];
         }
-        const fileData = fs.readFileSync(dataFilePath, 'utf8');
-        return JSON.parse(fileData);
     }
 }
 
@@ -41,20 +48,22 @@ async function saveServices(services: any[]) {
     if (isProduction) {
         // Save to Netlify Blobs in production
         try {
-            const store = getStore({
-                name: STORE_NAME,
-                siteID: process.env.SITE_ID,
-                token: process.env.NETLIFY_TOKEN,
-            });
+            const store = getStore(STORE_NAME);
             await store.setJSON(BLOB_KEY, services);
-            console.log('Saved to Netlify Blobs:', services);
+            console.log('[BLOBS] Saved', services.length, 'services');
         } catch (error) {
-            console.error('Error writing to Netlify Blobs:', error);
+            console.error('[BLOBS] Error writing:', error);
             throw error;
         }
     } else {
         // Save to JSON file in development
-        fs.writeFileSync(dataFilePath, JSON.stringify(services, null, 2));
+        try {
+            fs.writeFileSync(dataFilePath, JSON.stringify(services, null, 2));
+            console.log('[LOCAL] Saved', services.length, 'services to file');
+        } catch (error) {
+            console.error('[LOCAL] Error writing:', error);
+            throw error;
+        }
     }
 }
 
@@ -65,10 +74,11 @@ async function isAuthenticated() {
 
 export async function GET() {
     try {
+        console.log('[GET] Environment check - isProduction:', isProduction);
         const services = await getServices();
         return NextResponse.json(services);
     } catch (error) {
-        console.error('GET Error:', error);
+        console.error('[GET] Error:', error);
         return NextResponse.json({
             error: 'Failed to fetch services',
             details: error instanceof Error ? error.message : 'Unknown error'
@@ -81,6 +91,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     try {
+        console.log('[POST] Environment check - isProduction:', isProduction);
         const newService = await request.json();
         const services = await getServices();
 
@@ -90,7 +101,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json(newService);
     } catch (error) {
-        console.error('POST Error:', error);
+        console.error('[POST] Error:', error);
         return NextResponse.json({
             error: 'Failed to add service',
             details: error instanceof Error ? error.message : 'Unknown error'
@@ -103,6 +114,7 @@ export async function PUT(request: Request) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     try {
+        console.log('[PUT] Environment check - isProduction:', isProduction);
         const updatedService = await request.json();
         const services = await getServices();
 
@@ -115,7 +127,7 @@ export async function PUT(request: Request) {
 
         return NextResponse.json({ error: 'Service not found' }, { status: 404 });
     } catch (error) {
-        console.error('PUT Error:', error);
+        console.error('[PUT] Error:', error);
         return NextResponse.json({
             error: 'Failed to update service',
             details: error instanceof Error ? error.message : 'Unknown error'
@@ -128,20 +140,21 @@ export async function DELETE(request: Request) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     try {
+        console.log('[DELETE] Environment check - isProduction:', isProduction);
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 
         if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
         let services = await getServices();
-        console.log('Before delete:', services);
+        console.log('[DELETE] Before:', services.length, 'services');
         services = services.filter((s: any) => s.id !== id);
-        console.log('After delete:', services);
+        console.log('[DELETE] After:', services.length, 'services');
         await saveServices(services);
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('DELETE Error:', error);
+        console.error('[DELETE] Error:', error);
         return NextResponse.json({
             error: 'Failed to delete service',
             details: error instanceof Error ? error.message : 'Unknown error'
