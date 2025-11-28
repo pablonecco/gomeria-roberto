@@ -1,18 +1,29 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
+export async function GET() {
+    const cookieStore = await cookies();
+    const hasToken = cookieStore.has('admin_token');
+
+    if (hasToken) {
+        return NextResponse.json({ authenticated: true });
+    }
+
+    return NextResponse.json({ authenticated: false }, { status: 401 });
+}
+
 export async function POST(request: Request) {
     try {
-        const { username, password } = await request.json();
+        const body = await request.json();
+        const { username, password } = body;
 
         if (username === 'roberto530' && password === 'roberto530') {
-            // Set cookie
             const cookieStore = await cookies();
             cookieStore.set('admin_token', 'authenticated', {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
                 maxAge: 60 * 60 * 24, // 1 day
-                path: '/',
             });
 
             return NextResponse.json({ success: true });
@@ -20,7 +31,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     } catch (error) {
-        return NextResponse.json({ error: 'Login failed' }, { status: 500 });
+        return NextResponse.json({ error: 'Internal error' }, { status: 500 });
     }
 }
 

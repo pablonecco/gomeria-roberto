@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Phone, MapPin, Menu, Instagram } from 'lucide-react';
+import { Phone, MapPin, Menu, Instagram, Lock } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -33,8 +33,9 @@ export default function Layout({ children }: LayoutProps) {
           </nav>
 
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-xs text-neutral-500 hover:text-white uppercase tracking-widest hidden md:block">
-              Admin
+            <Link href="/login" className="flex items-center gap-1 text-xs text-neutral-500 hover:text-white uppercase tracking-widest transition-colors">
+              <Lock size={14} />
+              <span className="hidden sm:inline">Admin</span>
             </Link>
             <a
               href="https://wa.me/5491140707802"

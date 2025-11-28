@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Layout from '@/components/Layout';
 import ServiceCard from '@/components/ServiceCard';
 import MapComponent from '@/components/Map';
-import { Phone, ArrowRight, MapPin, ChevronDown } from 'lucide-react';
+import { Phone, ArrowRight, MapPin } from 'lucide-react';
 
 interface Service {
   id: string;
@@ -53,7 +53,7 @@ export default function Home() {
               href="#servicios"
               className="group bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-sm font-bold text-lg transition-all flex items-center justify-center gap-3 skew-x-[-10deg] hover:shadow-[0_0_30px_rgba(220,38,38,0.4)]"
             >
-              <span className="skew-x-[10deg] flex items-center gap-2">VER SERVICIOS <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" /></span>
+              <span className="skew-x-[10deg] flex items-center gap-2">VER SERVICIOS</span>
             </a>
             <a
               href="https://wa.me/5491140707802"
@@ -63,10 +63,6 @@ export default function Home() {
             >
               <span className="skew-x-[10deg] flex items-center gap-2"><Phone size={20} /> CONSULTAR AHORA</span>
             </a>
-          </div>
-
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-neutral-500">
-            <ChevronDown size={32} />
           </div>
         </div>
       </section>

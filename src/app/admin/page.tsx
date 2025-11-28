@@ -20,8 +20,27 @@ export default function Admin() {
     const router = useRouter();
 
     useEffect(() => {
-        fetchServices();
-    }, []);
+        // Check authentication by calling the auth endpoint
+        const checkAuth = async () => {
+            try {
+                const res = await fetch('/api/auth');
+                if (!res.ok) {
+                    router.push('/ login');
+                    return;
+                }
+                const data = await res.json();
+                if (!data.authenticated) {
+                    router.push('/login');
+                    return;
+                }
+                // User is authenticated, fetch services
+                fetchServices();
+            } catch {
+                router.push('/login');
+            }
+        };
+        checkAuth();
+    }, [router]);
 
     const fetchServices = async () => {
         try {
@@ -250,7 +269,7 @@ export default function Admin() {
                                                 <td className="px-8 py-6 text-right">
                                                     <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         <button onClick={() => handleEdit(service)} className="bg-neutral-800 hover:bg-blue-600 text-neutral-400 hover:text-white p-2 rounded-lg transition-all"><Edit size={18} /></button>
-                                                        <button onClick={() => handleDelete(service.id)} className="bg-neutral-800 hover:bg-red-600 text-neutral-400 hover:text-white p-2 rounded-lg transition-all"><Trash2 size={18} /></button>
+                                                        <button onClick={() => handleDelete(service.id)} className="bg-neutral-800 hover:bg-red-600 text-neutral-400 hover:text- white p-2 rounded-lg transition-all"><Trash2 size={18} /></button>
                                                     </div>
                                                 </td>
                                             </>
