@@ -8,61 +8,48 @@ const dataFilePath = path.join(process.cwd(), 'src/data/services.json');
 const STORE_NAME = 'gomeria-services';
 const BLOB_KEY = 'services';
 
-// Detect production: Netlify sets CONTEXT to "production" or "deploy-preview"
-// Also check if we can't write to filesystem (serverless)
-const isProduction = process.env.CONTEXT === 'production' ||
-    process.env.CONTEXT === 'deploy-preview' ||
-    process.env.NETLIFY === 'true';
-
 async function getServices() {
-    if (isProduction) {
-        // Use Netlify Blobs in production
-        try {
-            const store = getStore(STORE_NAME);
-            const data = await store.get(BLOB_KEY, { type: 'json' });
-            console.log('[BLOBS] Read services:', data ? `${data.length} items` : 'empty');
-            return data || [];
-        } catch (error) {
-            console.error('[BLOBS] Error reading:', error);
-            return [];
-        }
-    } else {
-        // Use JSON file in development
+    // Try Netlify Blobs first (production/serverless)
+    try {
+        const store = getStore(STORE_NAME);
+        const data = await store.get(BLOB_KEY, { type: 'json' });
+        console.log('[BLOBS] Successfully read:', data ? `${data.length} services` : 'empty');
+        return data || [];
+    } catch (blobError) {
+        // Blobs failed, try local file (development)
+        console.log('[BLOBS] Not available, using local file');
         try {
             if (!fs.existsSync(dataFilePath)) {
-                console.log('[LOCAL] No services file, returning empty array');
+                console.log('[LOCAL] File not found, returning empty array');
                 return [];
             }
             const fileData = fs.readFileSync(dataFilePath, 'utf8');
             const data = JSON.parse(fileData);
-            console.log('[LOCAL] Read services:', data.length, 'items');
+            console.log('[LOCAL] Read', data.length, 'services from file');
             return data;
-        } catch (error) {
-            console.error('[LOCAL] Error reading:', error);
+        } catch (fileError) {
+            console.error('[LOCAL] File read failed:', fileError);
             return [];
         }
     }
 }
 
 async function saveServices(services: any[]) {
-    if (isProduction) {
-        // Save to Netlify Blobs in production
-        try {
-            const store = getStore(STORE_NAME);
-            await store.setJSON(BLOB_KEY, services);
-            console.log('[BLOBS] Saved', services.length, 'services');
-        } catch (error) {
-            console.error('[BLOBS] Error writing:', error);
-            throw error;
-        }
-    } else {
-        // Save to JSON file in development
+    // Try Netlify Blobs first (production/serverless)
+    try {
+        const store = getStore(STORE_NAME);
+        await store.setJSON(BLOB_KEY, services);
+        console.log('[BLOBS] Successfully saved', services.length, 'services');
+        return; // Success, exit
+    } catch (blobError) {
+        // Blobs failed, try local file (development)
+        console.log('[BLOBS] Not available, using local file');
         try {
             fs.writeFileSync(dataFilePath, JSON.stringify(services, null, 2));
             console.log('[LOCAL] Saved', services.length, 'services to file');
-        } catch (error) {
-            console.error('[LOCAL] Error writing:', error);
-            throw error;
+        } catch (fileError) {
+            console.error('[LOCAL] File write failed:', fileError);
+            throw new Error('Cannot save data: both Blobs and file system failed');
         }
     }
 }
@@ -74,7 +61,6 @@ async function isAuthenticated() {
 
 export async function GET() {
     try {
-        console.log('[GET] Environment check - isProduction:', isProduction);
         const services = await getServices();
         return NextResponse.json(services);
     } catch (error) {
@@ -91,7 +77,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     try {
-        console.log('[POST] Environment check - isProduction:', isProduction);
         const newService = await request.json();
         const services = await getServices();
 
@@ -114,7 +99,6 @@ export async function PUT(request: Request) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     try {
-        console.log('[PUT] Environment check - isProduction:', isProduction);
         const updatedService = await request.json();
         const services = await getServices();
 
@@ -140,16 +124,15 @@ export async function DELETE(request: Request) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     try {
-        console.log('[DELETE] Environment check - isProduction:', isProduction);
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 
         if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
         let services = await getServices();
-        console.log('[DELETE] Before:', services.length, 'services');
+        console.log('[DELETE] Before filter:', services.length, 'services');
         services = services.filter((s: any) => s.id !== id);
-        console.log('[DELETE] After:', services.length, 'services');
+        console.log('[DELETE] After filter:', services.length, 'services');
         await saveServices(services);
 
         return NextResponse.json({ success: true });
